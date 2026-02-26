@@ -5,7 +5,12 @@ from dotenv import load_dotenv
 import certifi
 
 load_dotenv()
-MONGO_URI = os.getenv("MONGODB_URI")
+
+# Coba ambil dari Streamlit Secrets dulu (untuk Cloud), jika gagal ambil dari .env (untuk Lokal)
+try:
+    MONGO_URI = st.secrets["MONGODB_URI"]
+except:
+    MONGO_URI = os.getenv("MONGODB_URI")
 
 # Pengaturan halaman harus di paling atas
 st.set_page_config(page_title="AI Agent Dashboard | Portofolio", page_icon="🤖", layout="wide")
