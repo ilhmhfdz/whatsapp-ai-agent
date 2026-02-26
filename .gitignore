@@ -9,3 +9,6 @@ dashboard/.env
 
 # Mengabaikan file sistem operasi
 .DS_Store
+
+.wwebjs_auth/
+.wwebjs_cache/

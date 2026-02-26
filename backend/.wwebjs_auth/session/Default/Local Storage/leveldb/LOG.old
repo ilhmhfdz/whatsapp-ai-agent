@@ -1,6 +1,0 @@
-2026/02/26-10:59:36.641 6137ad Reusing MANIFEST /Users/ilhamhafidz/whatsapp-ai-agent/backend/.wwebjs_auth/session/Default/Local Storage/leveldb/MANIFEST-000001
-2026/02/26-10:59:36.643 6137ad Recovering log #3
-2026/02/26-10:59:36.645 6137ad Reusing old log /Users/ilhamhafidz/whatsapp-ai-agent/backend/.wwebjs_auth/session/Default/Local Storage/leveldb/000003.log 
-2026/02/26-11:01:37.405 6137b0 Level-0 table #5: started
-2026/02/26-11:01:37.420 6137b0 Level-0 table #5: 17205 bytes OK
-2026/02/26-11:01:37.425 6137b0 Delete type=0 #3
