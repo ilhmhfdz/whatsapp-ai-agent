@@ -2,6 +2,28 @@ const { Client, LocalAuth } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
 const { connectDB, getSystemPrompt } = require('./database');
 const { generateAIResponse } = require('./ai');
+const express = require('express'); // 1. Tambahan untuk Cloud
+
+// 2. === SERVER DUMMY UNTUK CLOUD (Wajib agar tidak dimatikan server) ===
+const app = express();
+const port = process.env.PORT || 3000;
+app.get('/', (req, res) => res.send('🚀 Mesin Bot WhatsApp AI sedang berjalan sehat!'));
+app.listen(port, () => console.log(`🌍 Web server monitoring aktif di port ${port}`));
+
+// 3. === KONFIGURASI PUPPETEER KHUSUS CLOUD LINUX ===
+const client = new Client({ 
+    authStrategy: new LocalAuth(),
+    puppeteer: {
+        args: ['--no-sandbox', '--disable-setuid-sandbox'] // Izin wajib untuk Linux
+    }
+});
+
+// === SISTEM MEMORI JANGKA PENDEK ===
+const chatMemory = new Map(); 
+const MAX_HISTORY = 10; 
+
+// ... (KODE KE BAWAHNYA TETAP SAMA PERSIS SEPERTI SEBELUMNYA) ...
+// client.on('qr', ...
 
 const client = new Client({ authStrategy: new LocalAuth() });
 
