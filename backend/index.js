@@ -46,18 +46,24 @@ client.on('message', async message => {
     const userHistory = chatMemory.get(userId);
     userHistory.push({ role: "user", content: message.body });
 
+    // Batasi histori percakapan
     if (userHistory.length > MAX_HISTORY) {
         userHistory.shift(); 
     }
 
     try {
-        const systemPrompt = await getSystemPrompt();
-        const aiReply = await generateAIResponse(systemPrompt, userHistory);
+        // 1. Ambil data dari database (sekarang berupa Object: {prompt, knowledgeBase})
+        const dbData = await getSystemPrompt();
+        
+        // 2. Panggil AI dengan 3 parameter yang tepat
+        const aiReply = await generateAIResponse(dbData.prompt, dbData.knowledgeBase, userHistory);
 
+        // 3. Simpan dan kirim balasan
         userHistory.push({ role: "assistant", content: aiReply });
         message.reply(aiReply);
     } catch (error) {
-        console.error('Terjadi kesalahan:', error);
+        console.error('❌ Terjadi kesalahan saat memproses pesan:', error);
+        message.reply("Maaf, sistem AI sedang sibuk memproses dokumen. Silakan coba sebentar lagi.");
     }
 });
 

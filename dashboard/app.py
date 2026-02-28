@@ -3,6 +3,8 @@ from pymongo import MongoClient
 import os
 from dotenv import load_dotenv
 import certifi
+import PyPDF2  # Tambahan untuk membaca PDF
+import io      # Tambahan untuk mengelola file di memori
 
 load_dotenv()
 
@@ -52,12 +54,14 @@ st.title("Control Panel AI Agent")
 st.markdown("Antarmuka manajemen *prompt* dinamis untuk agen layanan pelanggan WhatsApp. Setiap perubahan di sini akan langsung memperbarui kepribadian bot secara *real-time*.")
 st.divider()
 
-# Tarik data lama
+# Tarik data lama dari database
 current_config = collection.find_one({"type": "system_prompt"})
 default_prompt = current_config["prompt"] if current_config else "Kamu adalah Customer Service toko sepatu..."
+# Tarik knowledge base lama jika ada, agar tidak hilang saat disave ulang
+current_kb = current_config.get("knowledge_base", "") if current_config else ""
 
 # Membagi layar menggunakan Tabs agar terlihat profesional
-tab1, tab2 = st.tabs(["📝 Konfigurasi Prompt", "🧩 Info Arsitektur"])
+tab1, tab2 = st.tabs(["Konfigurasi Prompt", " Info Arsitektur"])
 
 # TAB 1: KONFIGURASI PROMPT
 with tab1:
@@ -72,21 +76,53 @@ with tab1:
                 height=250
             )
             
+            st.markdown("---")
+            st.subheader(" Otak Tambahan (Knowledge Base)")
+            st.write("Unggah dokumen PDF (misal: daftar harga, katalog, atau FAQ) agar bot punya pengetahuan spesifik.")
+            
+            # Form Upload PDF
+            uploaded_file = st.file_uploader("Pilih file PDF", type=["pdf"])
+            
             # Tombol simpan yang lebar penuh
-            submit_button = st.form_submit_button(label="Simpan & Terapkan Perubahan ", use_container_width=True)
+            submit_button = st.form_submit_button(label="Simpan & Terapkan Perubahan", use_container_width=True)
 
         if submit_button:
+            # Gunakan teks PDF yang lama sebagai default
+            extracted_text = current_kb 
+            
+            # Jika user mengunggah PDF baru, ekstrak teksnya
+            if uploaded_file is not None:
+                try:
+                    pdf_reader = PyPDF2.PdfReader(uploaded_file)
+                    extracted_text = ""
+                    for page in pdf_reader.pages:
+                        page_text = page.extract_text()
+                        if page_text:
+                            extracted_text += page_text + "\n"
+                    st.success("✅ File PDF berhasil dibaca dan diproses!")
+                except Exception as e:
+                    st.error(f"❌ Gagal membaca PDF: {e}")
+            
+            # Simpan Prompt dan Teks PDF ke MongoDB
             try:
                 collection.update_one(
                     {"type": "system_prompt"},
-                    {"$set": {"prompt": new_prompt}},
+                    {"$set": {
+                        "prompt": new_prompt,
+                        "knowledge_base": extracted_text
+                    }},
                     upsert=True 
                 )
-                st.success("✅ Sukses! Konfigurasi bot telah diperbarui. Silakan uji melalui tombol WhatsApp di sidebar.")
+                st.success("✅ Sukses! Konfigurasi bot dan Knowledge Base telah diperbarui. Silakan uji melalui tombol WhatsApp di sidebar.")
+                
+                # Tampilkan sedikit preview dari teks yang tersimpan di database
+                if extracted_text:
+                    with st.expander("Intip isi Knowledge Base saat ini"):
+                        st.write(extracted_text[:500] + "... (teks dipotong untuk preview)")
+                        
             except Exception as e:
-                st.error(f"❌ Terjadi kesalahan: {e}")
+                st.error(f"❌ Terjadi kesalahan saat menyimpan ke database: {e}")
 
-    # PENTING: with col2 sekarang berada di dalam with tab1
     with col2:
         st.subheader("📚 Library Prompt")
         st.markdown("Pilih referensi gaya di bawah ini:")
@@ -124,5 +160,5 @@ with tab2:
     * **Frontend Control:** Streamlit (Python)
     * **Backend Engine:** Node.js & `whatsapp-web.js`
     * **Database Configuration:** MongoDB Atlas (NoSQL)
-    * **AI Engine:** OpenAI API (GPT-4o-mini) terintegrasi dengan memori percakapan berantai.
+    * **AI Engine:** OpenAI API (GPT-4o-mini) terintegrasi dengan memori percakapan berantai dan injeksi *Knowledge Base*.
     """)

@@ -5,13 +5,20 @@ const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
 
-// fungsi ini menerima chatHistory (array) bukan hanya userMessage (string)
-async function generateAIResponse(systemPrompt, chatHistory) {
+// Sekarang menerima knowledgeBase sebagai parameter tambahan
+async function generateAIResponse(systemPrompt, knowledgeBase, chatHistory) {
     try {
-        // Gabungkan instruksi sistem dengan riwayat obrolan pembeli
+        // Gabungkan System Prompt utama dengan Knowledge Base (PDF)
+        let finalSystemPrompt = systemPrompt;
+        
+        // Jika ada teks PDF dari database, suntikkan ke dalam instruksi AI
+        if (knowledgeBase && knowledgeBase.trim() !== "") {
+            finalSystemPrompt += `\n\n=== INFORMASI TAMBAHAN (KNOWLEDGE BASE) ===\nBerikut adalah data atau dokumen yang harus kamu jadikan acuan utama untuk menjawab pertanyaan pengguna (jika relevan):\n${knowledgeBase}`;
+        }
+
         const messages = [
-            { role: "system", content: systemPrompt },
-            ...chatHistory // Menggabungkan semua isi array riwayat chat ke sini
+            { role: "system", content: finalSystemPrompt },
+            ...chatHistory 
         ];
 
         const response = await openai.chat.completions.create({

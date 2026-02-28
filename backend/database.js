@@ -16,13 +16,31 @@ async function connectDB() {
 }
 
 async function getSystemPrompt() {
-    if (!db) return "Kamu adalah asisten AI yang ramah."; // Fallback jika DB gagal
+    // Pengaturan default jika database kosong atau gagal terhubung
+    const defaultConfig = { 
+        prompt: "Kamu adalah asisten AI yang ramah.", 
+        knowledgeBase: "" 
+    };
+
+    if (!db) return defaultConfig; 
     
-    const collection = db.collection('agent_config');
-    const config = await collection.findOne({ type: 'system_prompt' });
-    
-    //  gunakan prompt default
-    return config ? config.prompt : "Kamu adalah Customer Service toko sepatu. Jawab dengan ramah, gunakan emoji, dan maksimal 3 kalimat.";
+    try {
+        const collection = db.collection('agent_config');
+        const config = await collection.findOne({ type: 'system_prompt' });
+        
+        if (config) {
+            // Mengembalikan Object berisi prompt dan knowledge_base
+            return {
+                prompt: config.prompt || defaultConfig.prompt,
+                knowledgeBase: config.knowledge_base || ""
+            };
+        } else {
+            return defaultConfig;
+        }
+    } catch (error) {
+        console.error("❌ Gagal mengambil konfigurasi dari database:", error);
+        return defaultConfig;
+    }
 }
 
 module.exports = { connectDB, getSystemPrompt };
