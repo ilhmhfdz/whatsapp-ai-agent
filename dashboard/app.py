@@ -26,24 +26,24 @@ try:
     db = client['whatsapp_bot'] 
     collection = db['agent_config']
 except Exception as e:
-    st.error(f"❌ Gagal terhubung ke MongoDB: {e}")
+    st.error(f"Gagal terhubung ke MongoDB: {e}")
     st.stop()
 
 # --- SIDEBAR (Panel Samping) ---
 with st.sidebar:
     
     # Tombol WhatsApp langsung ke Bot
-    st.markdown("🎯 **Live Demo**")
+    st.markdown("**Live Demo**")
     st.markdown("Klik tombol di bawah untuk langsung menguji respons bot di WhatsApp.")
-    st.link_button("💬 Test Bot di WhatsApp", "https://wa.me/62881082895498", type="primary", use_container_width=True)
+    st.link_button("Test Bot di WhatsApp", "https://wa.me/62881082895498", type="primary", use_container_width=True)
     
-    st.header("⚙️ Status Sistem")
-    st.success("🟢 MongoDB: Terhubung")
-    st.info("🧠 Model: GPT-4o-mini")
-    st.info("💾 Memori: 15 Pesan Terakhir")
+    st.header("Status Sistem")
+    st.success("MongoDB: Terhubung")
+    st.info("Model: GPT-4o-mini")
+    st.info("Memori: 15 Pesan Terakhir")
     st.divider()
 
-    st.title("👨‍💻 Tentang Developer")
+    st.title("Tentang Developer")
     st.markdown("**Ilham Hafidz**")
     st.markdown("*AI Engineer*")
     st.markdown("[Lihat Repositori GitHub](https://github.com/ilhmhfdz)")
@@ -99,9 +99,9 @@ with tab1:
                         page_text = page.extract_text()
                         if page_text:
                             extracted_text += page_text + "\n"
-                    st.success("✅ File PDF berhasil dibaca dan diproses!")
+                    st.success("File PDF berhasil dibaca dan diproses!")
                 except Exception as e:
-                    st.error(f"❌ Gagal membaca PDF: {e}")
+                    st.error(f"Gagal membaca PDF: {e}")
             
             # Simpan Prompt dan Teks PDF ke MongoDB
             try:
@@ -113,7 +113,7 @@ with tab1:
                     }},
                     upsert=True 
                 )
-                st.success("✅ Sukses! Konfigurasi bot dan Knowledge Base telah diperbarui. Silakan uji melalui tombol WhatsApp di sidebar.")
+                st.success("Sukses! Konfigurasi bot dan Knowledge Base telah diperbarui. Silakan uji melalui tombol WhatsApp di sidebar.")
                 
                 # Tampilkan sedikit preview dari teks yang tersimpan di database
                 if extracted_text:
@@ -124,7 +124,7 @@ with tab1:
                 st.error(f"❌ Terjadi kesalahan saat menyimpan ke database: {e}")
 
     with col2:
-        st.subheader("📚 Library Prompt")
+        st.subheader("Library Prompt")
         st.markdown("Pilih referensi gaya di bawah ini:")
         
         with st.expander("Gaya Customer Service", expanded=True):
